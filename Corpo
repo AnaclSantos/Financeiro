@@ -21,7 +21,7 @@
   --border: rgba(54,86,50,0.15); /* Baseada no verde escuro, transparente */
   --border2: rgba(54,86,50,0.25); /* Mais forte */
 
-  /* Cores Semânticas da Paleta Enetec */
+  /* Cores da Paleta Enetec */
   --green: #365833;      /* Institucional Verde Principal */
   --green-bg: #CDFFCA;   /* Auxiliar Verde Muito Claro (Fundo Badge) */
   --green-mid: #577A55;  /* Auxiliar Verde Médio */
@@ -213,10 +213,10 @@ tr:hover td { background: var(--surface2); }
   <!-- ══════════════════════════════ GERAL ══════════════════════════════ -->
   <div class="block active" id="block-geral">
     <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">Receita Total</div><div class="kpi-value">R$48k</div><div class="kpi-delta pos">↑ 12% vs mês anterior</div></div>
-      <div class="kpi"><div class="kpi-label">Despesas Totais</div><div class="kpi-value">R$31k</div><div class="kpi-delta neg">↑ 5% vs mês anterior</div></div>
-      <div class="kpi"><div class="kpi-label">Balanço Mensal</div><div class="kpi-value">R$17k</div><div class="kpi-delta pos">↑ 28% vs mês anterior</div></div>
-      <div class="kpi"><div class="kpi-label">Economia</div><div class="kpi-value">35%</div><div class="kpi-delta neu">da receita total</div></div>
+      <div class="kpi"><div class="kpi-label">Receita Total</div><div class="kpi-value">R$68k</div><div class="kpi-delta pos">↑ 12% vs ano anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Despesas Totais</div><div class="kpi-value">R$31k</div><div class="kpi-delta neg">↑ 5% vs ano anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Balanço Anual</div><div class="kpi-value">R$37k</div><div class="kpi-delta pos">↑ 28% vs ano anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Renda Livre</div><div class="kpi-value">R$29k</div><div class="kpi-delta neu">da receita total</div></div>
     </div>
  
     <div class="charts-row">
