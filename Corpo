@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Financeiro ENETEC 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Mono:wght@400;500&display=swap');
+ 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+:root {
+  /* Fundo e Superfícies com base no #1a1a1a e #3C3C3B e tons claros de apoio */
+  --bg: #F5F4F0; /* Manter fundo claro para legibilidade, ajustar tons */
+  --surface: #FFFFFF;
+  --surface2: #F1EFE8; /* Manter tom leve para cartões de apoio */
+  --text: #1a1a1a; /* Cor Institucional Preta */
+  --muted: #3C3C3B; /* Cor Auxiliar Cinza Escuro */
+  --hint: #706F6F;  /* Cor Auxiliar Cinza Médio */
+  --border: rgba(54,86,50,0.15); /* Baseada no verde escuro, transparente */
+  --border2: rgba(54,86,50,0.25); /* Mais forte */
+
+  /* Cores Semânticas da Paleta Enetec */
+  --green: #365833;      /* Institucional Verde Principal */
+  --green-bg: #CDFFCA;   /* Auxiliar Verde Muito Claro (Fundo Badge) */
+  --green-mid: #577A55;  /* Auxiliar Verde Médio */
+  
+  --red: #A32E16;       /* Auxiliar Vermelho Principal (Despesas/Prejuízo) */
+  --red-bg: #FFA6A3;    /* Auxiliar Vermelho Claro (Fundo Badge) */
+  --red-mid: #A32E16;    /* Usar o mesmo vermelho principal para consistência */
+
+  --blue: #427882;      /* Auxiliar Azul/Ciano (Secundária) */
+  --blue-bg: #e6f1f3;   /* Um azul muito claro artificialmente para badge */
+  --blue-mid: #427882;  /* Usar o mesmo azul para consistência */
+  
+  --amber: #967D69;     /* Auxiliar Marrom/Bege (Atenção/Secundária) */
+  --amber-bg: #fcf6f0;  /* Um âmbar muito claro artificialmente para badge */
+  --amber-mid: #967D69; /* Usar o mesmo âmbar para consistência */
+
+  --teal: #365833;      /* Substituir teal por Verde Principal */
+  --teal-bg: #CDFFCA;   /* Substituir teal-bg por Verde Claro Principal */
+  --teal-mid: #577A55;  /* Substituir teal-mid por Verde Médio Principal */
+
+  --purple: #799980;    /* Substituir purple por Verde Auxiliar mais claro */
+  --purple-bg: #e4efe6; /* Um roxo/verde muito claro artificialmente */
+  --purple-mid: #799980; /* Usar o mesmo verde claro */
+  
+  --radius: 8px; --radius-lg: 12px;
+}
+ 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1a;     /* Institucional Preto para Fundo */
+    --surface: #262626; /* Um pouco mais claro que o fundo */
+    --surface2: #3C3C3B; /* Cor Auxiliar para cartões de apoio */
+    --text: #F1EFE8;    /* Manter texto claro para contraste */
+    --muted: #706F6F;   /* Auxiliar Cinza para texto secundário */
+    --hint: #888780;    /* Manter hint claro */
+    --border: rgba(205,255,202,0.10); /* Verde Claro, transparente */
+    --border2: rgba(205,255,202,0.18); /* Mais forte */
+    
+    /* Versões escuras mantendo os tons base da paleta */
+    --green: #CDFFCA;     /* Verde Claro Principal */
+    --green-bg: #1A3118;  /* Verde Muito Escuro para fundo de badge (derivado) */
+    --green-mid: #577A55; /* Verde Médio */
+    
+    --red: #FFA6A3;       /* Vermelho Claro Auxiliar */
+    --red-bg: #401209;    /* Vermelho Muito Escuro para fundo de badge (derivado) */
+    --red-mid: #A32E16;    /* Vermelho Principal */
+    
+    --blue: #88c6d1;      /* Azul Claro (derivado de 427882) */
+    --blue-bg: #14282b;   /* Azul Muito Escuro para fundo de badge */
+    --blue-mid: #427882;  /* Azul Principal */
+    
+    --amber: #dabfb1;     /* Âmbar Claro (derivado de 967D69) */
+    --amber-bg: #2d2621;  /* Âmbar Muito Escuro para fundo de badge */
+    --amber-mid: #967D69; /* Âmbar Principal */
+
+    --teal: #CDFFCA;      /* Verde Claro Principal */
+    --teal-mid: #577A55;  /* Verde Médio */
+    --teal-bg: #1A3118;  /* Verde Muito Escuro */
+
+    --purple: #d5e6da;    /* Verde Mais Claro (derivado de 799980) */
+    --purple-mid: #799980; /* Verde Principal Claro */
+    --purple-bg: #253328;  /* Verde Escuro */
+  }
+}
+ 
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  padding: 24px 20px 48px;
+}
+ 
+.container { max-width: 960px; margin: 0 auto; }
+ 
+.dash-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border2); margin-bottom: 20px;
+}
+.dash-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.dash-title span { color: var(--green); } /* Usar Verde Principal */
+.dash-year {
+  font-family: 'DM Mono', monospace; font-size: 12px; color: var(--hint);
+  background: var(--surface2); padding: 4px 12px; border-radius: 20px;
+  border: 0.5px solid var(--border2);
+}
+ 
+.tab-row { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn {
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 500;
+  padding: 7px 16px; border-radius: 20px; border: 0.5px solid var(--border2);
+  background: var(--surface); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.tab-btn.active { background: var(--green); color: var(--surface); border-color: var(--green); } /* Verde Principal para tab ativo */
+.tab-btn:hover:not(.active) { background: var(--green-bg); color: var(--green); } /* Verde Claro para hover */
+ 
+.block { display: none; }
+.block.active { display: block; }
+ 
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 10px; margin-bottom: 16px; }
+.kpi { background: var(--surface2); border-radius: var(--radius); padding: 16px 18px; border: 0.5px solid var(--border2); }
+.kpi-label { font-size: 11px; font-weight: 500; color: var(--hint); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.kpi-value { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; color: var(--text); }
+.kpi-delta { font-size: 11px; margin-top: 5px; font-weight: 500; }
+.kpi-delta.pos { color: var(--green-mid); }
+.kpi-delta.neg { color: var(--red-mid); }
+.kpi-delta.neu { color: var(--muted); }
+ 
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 600px) { .charts-row { grid-template-columns: 1fr; } }
+ 
+.chart-card {
+  background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px;
+}
+.chart-title { font-size: 11px; font-weight: 500; color: var(--hint); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
+ 
+.prog-list { display: flex; flex-direction: column; gap: 12px; }
+.prog-item {}
+.prog-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+.prog-name { font-weight: 500; color: var(--text); }
+.prog-val { font-family: 'DM Mono', monospace; color: var(--muted); }
+.prog-bar-bg { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.prog-bar-fill { height: 100%; border-radius: 3px; }
+ 
+.gauge-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 10px; }
+@media (max-width: 500px) { .gauge-row { grid-template-columns: 1fr; } }
+.gauge-card {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px; text-align: center;
+}
+.gauge-label { font-size: 11px; color: var(--hint); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .4px; font-weight: 500; }
+.gauge-big { font-family: 'DM Mono', monospace; font-size: 30px; font-weight: 500; }
+.gauge-sub { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.green-big { color: var(--green-mid); }
+.red-big { color: var(--red-mid); }
+.amber-big { color: var(--amber-mid); }
+.blue-big { color: var(--blue-mid); }
+ 
+.donut-wrap { display: flex; align-items: center; gap: 18px; }
+.donut-legend { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.legend-pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-left: auto; }
+ 
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { font-size: 10px; font-weight: 500; color: var(--hint); text-transform: uppercase; letter-spacing: .5px;
+  padding: 7px 10px; border-bottom: 0.5px solid var(--border2); text-align: left; }
+td { padding: 9px 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; color: var(--text); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+ 
+.badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-size: 10px; font-weight: 500; }
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); }
+.rank-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--hint); }
+ 
+.bar-chart-wrap { display: flex; align-items: flex-end; gap: 5px; }
+.bar-group { flex: 1; display: flex; gap: 2px; align-items: flex-end; }
+.bar { flex: 1; border-radius: 3px 3px 0 0; min-height: 3px; transition: opacity .2s; }
+.bar:hover { opacity: .7; cursor: pointer; }
+.bar-axis { display: flex; gap: 5px; margin-top: 6px; }
+.bar-axis-lbl { flex: 1; font-size: 9px; color: var(--hint); text-align: center; font-family: 'DM Mono', monospace; }
+ 
+.legend-row { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+.legend-row span { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.legend-row b { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+ 
+.note { font-size: 11px; color: var(--hint); margin-top: 8px; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="dash-header">
+    <div class="dash-title">ENETEC <span>Financeiro</span></div>
+    <span class="dash-year">2026</span>
+  </div>
+ 
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="showBlock('geral',this)">Geral</button>
+    <button class="tab-btn" onclick="showBlock('comercial',this)">Comercial</button>
+    <button class="tab-btn" onclick="showBlock('financeiro',this)">Financeiro</button>
+    <button class="tab-btn" onclick="showBlock('projetos',this)">Projetos</button>
+    <button class="tab-btn" onclick="showBlock('orcamento',this)">Orçamento</button>
+  </div>
+ 
+  <!-- ══════════════════════════════ GERAL ══════════════════════════════ -->
+  <div class="block active" id="block-geral">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Receita Total</div><div class="kpi-value">R$48k</div><div class="kpi-delta pos">↑ 12% vs mês anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Despesas Totais</div><div class="kpi-value">R$31k</div><div class="kpi-delta neg">↑ 5% vs mês anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Balanço Mensal</div><div class="kpi-value">R$17k</div><div class="kpi-delta pos">↑ 28% vs mês anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Economia</div><div class="kpi-value">35%</div><div class="kpi-delta neu">da receita total</div></div>
+    </div>
+ 
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Receita vs Despesa vs Economia</div>
+        <div class="bar-chart-wrap" id="bar-geral" style="height:120px;"></div>
+        <div class="bar-axis" id="bar-geral-ax"></div>
+        <div class="legend-row">
+          <span><b style="background:#365833"></b>Receita</span> <!-- Verde Principal -->
+          <span><b style="background:#A32E16"></b>Despesa</span> <!-- Vermelho Auxiliar -->
+          <span><b style="background:#427882"></b>Economia</span> <!-- Azul Auxiliar -->
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Distribuição da Renda</div>
+        <div class="donut-wrap">
+          <canvas id="donut-renda" width="110" height="110" role="img" aria-label="Distribuição da renda: 65% despesas, 35% economia">65% despesas, 35% economia</canvas>
+          <div class="donut-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#A32E16"></span>Despesas<span class="legend-pct">65%</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:#427882"></span>Economia<span class="legend-pct">35%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Fonte de Receita</div>
+        <div class="prog-list">
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Projetos</span><span class="prog-val">R$28k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:58%;background:#365833"></div></div></div> <!-- Verde Principal -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Consultoria</span><span class="prog-val">R$12k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:25%;background:#427882"></div></div></div> <!-- Azul Auxiliar -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Treinamentos</span><span class="prog-val">R$5k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:10%;background:#799980"></div></div></div> <!-- Verde Auxiliar Claro -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Outros</span><span class="prog-val">R$3k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:6%;background:#967D69"></div></div></div> <!-- Âmbar Auxiliar -->
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Maiores Gastos</div>
+        <div class="prog-list">
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Recursos Humanos</span><span class="prog-val">R$9,8k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:32%;background:#A32E16"></div></div></div> <!-- Vermelho -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Marketing</span><span class="prog-val">R$6,2k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:20%;background:#A32E16"></div></div></div> <!-- Vermelho -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Infraestrutura</span><span class="prog-val">R$5,1k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:16%;background:#A32E16"></div></div></div> <!-- Vermelho -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Comercial</span><span class="prog-val">R$4,4k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:14%;background:#A32E16"></div></div></div> <!-- Vermelho -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Outros</span><span class="prog-val">R$5,5k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:18%;background:#706F6F"></div></div></div> <!-- Cinza -->
+        </div>
+      </div>
+    </div>
+ 
+    <div class="chart-card" style="margin-top:10px;">
+      <div class="chart-title">Tabela de Transações Recentes</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo Cliente</th><th>Tipo</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">15/04</td><td>Projeto Alpha – UCL</td><td>Projetos</td><td>Novo</td><td><span class="badge badge-green">Receita</span></td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">+R$8.500</td></tr>
+            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">14/04</td><td>Campanha Google Ads</td><td>Marketing</td><td>—</td><td><span class="badge badge-red">Despesa</span></td><td style="font-family:'DM Mono',monospace;color:var(--red-mid)">-R$1.200</td></tr>
+            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">12/04</td><td>Consultoria Empresa Beta</td><td>Consultoria</td><td>Recorrente</td><td><span class="badge badge-green">Receita</span></td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">+R$4.000</td></tr>
+            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">10/04</td><td>Infraestrutura Cloud</td><td>Infraestrutura</td><td>—</td><td><span class="badge badge-red">Despesa</span></td><td style="font-family:'DM Mono',monospace;color:var(--red-mid)">-R$890</td></tr>
+            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">08/04</td><td>Treinamento Power BI</td><td>Treinamentos</td><td>Novo</td><td><span class="badge badge-green">Receita</span></td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">+R$2.500</td></tr>
+            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">05/04</td><td>Salários equipe</td><td>RH</td><td>—</td><td><span class="badge badge-red">Despesa</span></td><td style="font-family:'DM Mono',monospace;color:var(--red-mid)">-R$9.800</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">* Substitua os dados acima pela sua base de dados real (Tabela Transacoes).</p>
+    </div>
+  </div>
+ 
+  <!-- ══════════════════════════════ COMERCIAL ══════════════════════════════ -->
+  <div class="block" id="block-comercial">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Novos Clientes</div><div class="kpi-value">7</div><div class="kpi-delta pos">↑ 2 vs mês anterior</div></div>
+      <div class="kpi"><div class="kpi-label">CAC</div><div class="kpi-value">R$1,5k</div><div class="kpi-delta neg">↑ 8% — alto</div></div>
+      <div class="kpi"><div class="kpi-label">Ticket Médio</div><div class="kpi-value">R$6,9k</div><div class="kpi-delta pos">↑ 5% vs mês anterior</div></div>
+      <div class="kpi"><div class="kpi-label">Taxa de Conversão</div><div class="kpi-value">23%</div><div class="kpi-delta pos">↑ 3pp vs mês ant.</div></div>
+    </div>
+ 
+    <div class="gauge-row">
+      <div class="gauge-card"><div class="gauge-label">ROI de Marketing</div><div class="gauge-big green-big">3,8x</div><div class="gauge-sub">retorno por R$1 investido</div></div>
+      <div class="gauge-card"><div class="gauge-label">Receita Recorrente</div><div class="gauge-big blue-big">R$18k</div><div class="gauge-sub">37% da receita total</div></div>
+      <div class="gauge-card"><div class="gauge-label">Receita Nova</div><div class="gauge-big amber-big">R$30k</div><div class="gauge-sub">63% da receita total</div></div>
+    </div>
+ 
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Receita Recorrente vs Nova</div>
+        <div class="bar-chart-wrap" id="bar-recorrente" style="height:120px;"></div>
+        <div class="bar-axis" id="bar-recorrente-ax"></div>
+        <div class="legend-row">
+          <span><b style="background:#427882"></b>Recorrente</span> <!-- Azul Auxiliar -->
+          <span><b style="background:#967D69"></b>Nova</span> <!-- Âmbar Auxiliar -->
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Custo de Aquisição (CAC)</div>
+        <div class="prog-list">
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Marketing Digital</span><span class="prog-val">R$6,2k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:60%;background:#967D69"></div></div></div> <!-- Âmbar Auxiliar -->
+          <div class="prog-item"><div class="prog-header"><span class="prog-name">Comercial / Vendas</span><span class="prog-val">R$4,4k</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:43%;background:#967D69"></div></div></div> <!-- Âmbar Auxiliar -->
+        </div>
+        <div style="margin-top:16px;padding-top:12px;border-top:0.5px solid var(--border);">
+          <div style="font-size:11px;color:var(--hint);margin-bottom:4px;">Custo Total Aquisição</div>
+          <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--text)">R$10.600</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">÷ 7 novos clientes = <strong>R$1.514 / cliente</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ══════════════════════════════ FINANCEIRO ══════════════════════════════ -->
+  <div class="block" id="block-financeiro">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Burn Rate Mensal</div><div class="kpi-value">R$31k</div><div class="kpi-delta neg">consumo/mês</div></div>
+      <div class="kpi"><div class="kpi-label">Runway</div><div class="kpi-value">5,5m</div><div class="kpi-delta neu">com saldo atual</div></div>
+      <div class="kpi"><div class="kpi-label">Saldo Atual</div><div class="kpi-value">R$170k</div><div class="kpi-delta pos">↑ saudável</div></div>
+      <div class="kpi"><div class="kpi-label">Margem Média</div><div class="kpi-value">35%</div><div class="kpi-delta pos">↑ 3pp vs mês ant.</div></div>
+    </div>
+ 
+    <div class="gauge-row">
+      <div class="gauge-card" style="border-left:3px solid var(--red-mid)"><div class="gauge-label">Burn Rate</div><div class="gauge-big red-big">R$31k</div><div class="gauge-sub">despesa total / mês</div></div>
+      <div class="gauge-card" style="border-left:3px solid var(--green-mid)"><div class="gauge-label">Runway</div><div class="gauge-big green-big">5,5</div><div class="gauge-sub">meses de sobrevivência</div></div>
+      <div class="gauge-card" style="border-left:3px solid var(--blue-mid)"><div class="gauge-label">% Despesas / Receita</div><div class="gauge-big blue-big">65%</div><div class="gauge-sub">meta: abaixo de 70%</div></div>
+    </div>
+ 
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Balanço Mensal</div>
+        <div class="bar-chart-wrap" id="bar-balanco" style="height:130px;"></div>
+        <div class="bar-axis" id="bar-balanco-ax"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Evolução do Burn Rate</div>
+        <div class="bar-chart-wrap" id="bar-burn" style="height:130px;"></div>
+        <div class="bar-axis" id="bar-burn-ax"></div>
+      </div>
+    </div>
+ 
+    <div class="chart-card" style="margin-top:10px;">
+      <div class="chart-title">Orçamento vs Realizado</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Categoria</th><th>Orçamento</th><th>Realizado</th><th>Variação</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Recursos Humanos</td><td style="font-family:'DM Mono',monospace">R$10.000</td><td style="font-family:'DM Mono',monospace">R$9.800</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">-R$200</td><td><span class="badge badge-green">OK</span></td></tr>
+            <tr><td>Marketing</td><td style="font-family:'DM Mono',monospace">R$5.000</td><td style="font-family:'DM Mono',monospace">R$6.200</td><td style="font-family:'DM Mono',monospace;color:var(--red-mid)">+R$1.200</td><td><span class="badge badge-red">Excedeu</span></td></tr>
+            <tr><td>Infraestrutura</td><td style="font-family:'DM Mono',monospace">R$5.500</td><td style="font-family:'DM Mono',monospace">R$5.100</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">-R$400</td><td><span class="badge badge-green">OK</span></td></tr>
+            <tr><td>Comercial</td><td style="font-family:'DM Mono',monospace">R$4.000</td><td style="font-family:'DM Mono',monospace">R$4.400</td><td style="font-family:'DM Mono',monospace;color:var(--red-mid)">+R$400</td><td><span class="badge badge-amber">Atenção</span></td></tr>
+            <tr><td>Outros</td><td style="font-family:'DM Mono',monospace">R$6.000</td><td style="font-family:'DM Mono',monospace">R$5.500</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">-R$500</td><td><span class="badge badge-green">OK</span></td></tr>
+            <tr style="font-weight:600"><td>Total</td><td style="font-family:'DM Mono',monospace">R$30.500</td><td style="font-family:'DM Mono',monospace">R$31.000</td><td style="font-family:'DM Mono',monospace;color:var(--red-mid)">+R$500</td><td><span class="badge badge-amber">Atenção</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ══════════════════════════════ PROJETOS ══════════════════════════════ -->
+  <div class="block" id="block-projetos">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Projetos Ativos</div><div class="kpi-value">12</div><div class="kpi-delta pos">+3 novos no mês</div></div>
+      <div class="kpi"><div class="kpi-label">Receita Projetos</div><div class="kpi-value">R$28k</div><div class="kpi-delta pos">58% da receita total</div></div>
+      <div class="kpi"><div class="kpi-label">Margem Média</div><div class="kpi-value">41%</div><div class="kpi-delta pos">↑ saudável</div></div>
+      <div class="kpi"><div class="kpi-label">Proj. c/ Prejuízo</div><div class="kpi-value">2</div><div class="kpi-delta neg">requer atenção</div></div>
+    </div>
+ 
+    <div class="chart-card" style="margin-bottom:10px;">
+      <div class="chart-title">Top Projetos — Ranking por Lucratividade</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Projeto</th><th>Cliente</th><th>Receita</th><th>Custo</th><th>Lucro</th><th>Margem</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank-num">1</span></td><td style="font-weight:500">Alpha – Automação</td><td>UCL Engenharia</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">R$8.500</td><td style="font-family:'DM Mono',monospace">R$3.200</td><td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--green-mid)">R$5.300</td><td><span class="badge badge-green">62%</span></td></tr>
+            <tr><td><span class="rank-num">2</span></td><td style="font-weight:500">Beta – Consultoria</td><td>Empresa Beta</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">R$4.000</td><td style="font-family:'DM Mono',monospace">R$1.800</td><td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--green-mid)">R$2.200</td><td><span class="badge badge-green">55%</span></td></tr>
+            <tr><td><span class="rank-num">3</span></td><td style="font-weight:500">Gamma – IoT</td><td>FabLab Norte</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">R$6.200</td><td style="font-family:'DM Mono',monospace">R$3.400</td><td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--green-mid)">R$2.800</td><td><span class="badge badge-green">45%</span></td></tr>
+            <tr><td><span class="rank-num">4</span></td><td style="font-weight:500">Delta – Treinamento</td><td>StartTech BR</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">R$2.500</td><td style="font-family:'DM Mono',monospace">R$1.600</td><td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--blue-mid)">R$900</td><td><span class="badge badge-blue">36%</span></td></tr>
+            <tr><td><span class="rank-num">5</span></td><td style="font-weight:500">Epsilon – Análise</td><td>AgroTech Sul</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">R$3.800</td><td style="font-family:'DM Mono',monospace">R$2.900</td><td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--amber-mid)">R$900</td><td><span class="badge badge-amber">24%</span></td></tr>
+            <tr><td><span class="rank-num">6</span></td><td style="font-weight:500">Zeta – Firmware</td><td>MechDev</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">R$2.200</td><td style="font-family:'DM Mono',monospace">R$2.500</td><td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--red-mid)">-R$300</td><td><span class="badge badge-red">-14%</span></td></tr>
+            <tr><td><span class="rank-num">7</span></td><td style="font-weight:500">Eta – Prototipagem</td><td>LabX Univ.</td><td style="font-family:'DM Mono',monospace;color:var(--green-mid)">R$800</td><td style="font-family:'DM Mono',monospace">R$1.100</td><td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--red-mid)">-R$300</td><td><span class="badge badge-red">-38%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+ 
+    <div class="chart-card">
+      <div class="chart-title">Margem por Projeto</div>
+      <div class="prog-list">
+        <div class="prog-item"><div class="prog-header"><span class="prog-name">Alpha – Automação</span><span class="prog-val">62%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:62%;background:#365833"></div></div></div> <!-- Verde Principal -->
+        <div class="prog-item"><div class="prog-header"><span class="prog-name">Beta – Consultoria</span><span class="prog-val">55%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:55%;background:#365833"></div></div></div> <!-- Verde Principal -->
+        <div class="prog-item"><div class="prog-header"><span class="prog-name">Gamma – IoT</span><span class="prog-val">45%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:45%;background:#577A55"></div></div></div> <!-- Verde Auxiliar Médio -->
+        <div class="prog-item"><div class="prog-header"><span class="prog-name">Delta – Treinamento</span><span class="prog-val">36%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:36%;background:#427882"></div></div></div> <!-- Azul Auxiliar -->
+        <div class="prog-item"><div class="prog-header"><span class="prog-name">Epsilon – Análise</span><span class="prog-val">24%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:24%;background:#967D69"></div></div></div> <!-- Âmbar Auxiliar -->
+        <div class="prog-item"><div class="prog-header"><span class="prog-name">Zeta – Firmware</span><span class="prog-val" style="color:var(--red-mid)">-14%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:14%;background:#A32E16"></div></div></div> <!-- Vermelho -->
+        <div class="prog-item"><div class="prog-header"><span class="prog-name">Eta – Prototipagem</span><span class="prog-val" style="color:var(--red-mid)">-38%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:38%;background:#A32E16"></div></div></div> <!-- Vermelho -->
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ══════════════════════════════ ORÇAMENTO ══════════════════════════════ -->
+  <div class="block" id="block-orcamento">
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Orçado Total</div><div class="kpi-value">R$30,5k</div><div class="kpi-delta neu">planejado</div></div>
+      <div class="kpi"><div class="kpi-label">Realizado</div><div class="kpi-value">R$31k</div><div class="kpi-delta neg">+R$500 acima do orçado</div></div>
+      <div class="kpi"><div class="kpi-label">Desvio</div><div class="kpi-value">1,6%</div><div class="kpi-delta neu">aceitável</div></div>
+      <div class="kpi"><div class="kpi-label">Categorias OK</div><div class="kpi-value">3 / 5</div><div class="kpi-delta neu">dentro do limite</div></div>
+    </div>
+ 
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Orçado vs Realizado por Categoria</div>
+        <div class="bar-chart-wrap" id="bar-orca" style="height:140px;"></div>
+        <div class="bar-axis" id="bar-orca-ax"></div>
+        <div class="legend-row">
+          <span><b style="background:#427882"></b>Orçado</span> <!-- Azul Auxiliar -->
+          <span><b style="background:#A32E16"></b>Realizado</span> <!-- Vermelho Auxiliar -->
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Tabela de Categorias</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Categoria</th><th>Total</th><th>% do Total</th></tr></thead>
+            <tbody>
+              <tr><td>RH</td><td style="font-family:'DM Mono',monospace">R$9.800</td><td><span class="badge badge-red">32%</span></td></tr>
+              <tr><td>Marketing</td><td style="font-family:'DM Mono',monospace">R$6.200</td><td><span class="badge badge-amber">20%</span></td></tr>
+              <tr><td>Infraestrutura</td><td style="font-family:'DM Mono',monospace">R$5.100</td><td><span class="badge badge-blue">16%</span></td></tr>
+              <tr><td>Comercial</td><td style="font-family:'DM Mono',monospace">R$4.400</td><td><span class="badge badge-blue">14%</span></td></tr>
+              <tr><td>Outros</td><td style="font-family:'DM Mono',monospace">R$5.500</td><td><span class="badge badge-blue">18%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+</div><!-- /container -->
+ 
+<script>
+function showBlock(id, btn) {
+  document.querySelectorAll('.block').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('block-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+ 
+function makeBars(containerId, axId, groups, maxVal) {
+  const c = document.getElementById(containerId);
+  const ax = document.getElementById(axId);
+  if (!c) return;
+  c.innerHTML = '';
+  if (ax) ax.innerHTML = '';
+  groups.forEach(g => {
+    const grp = document.createElement('div');
+    grp.className = 'bar-group';
+    g.values.forEach((v, vi) => {
+      const b = document.createElement('div');
+      b.className = 'bar';
+      const pct = Math.round((v / maxVal) * 100);
+      b.style.height = pct + '%';
+      b.style.background = g.colors[vi];
+      b.title = g.labels[vi] + ': ' + v;
+      grp.appendChild(b);
+    });
+    c.appendChild(grp);
+    if (ax) {
+      const l = document.createElement('div');
+      l.className = 'bar-axis-lbl';
+      l.textContent = g.name;
+      ax.appendChild(l);
+    }
+  });
+}
+ 
+const meses = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+const receitas = [38,42,35,45,41,48];
+const despesas = [28,30,27,29,30,31];
+const economias = [10,12,8,16,11,17];
+ 
+// Receita vs Despesa vs Economia: Verde Principal, Vermelho Auxiliar, Azul Auxiliar
+makeBars('bar-geral','bar-geral-ax',
+  meses.map((m,i) => ({ name: m, labels:['Receita','Despesa','Economia'], values:[receitas[i],despesas[i]*0.7,economias[i]*0.7], colors:['#365833','#A32E16','#427882'] })), 55);
+ 
+// Receita Recorrente vs Nova: Azul Auxiliar, Âmbar Auxiliar
+makeBars('bar-recorrente','bar-recorrente-ax',
+  meses.map((m,i) => ({ name: m, labels:['Recorrente','Nova'], values:[Math.round(receitas[i]*0.37),Math.round(receitas[i]*0.63)], colors:['#427882','#967D69'] })), 50);
+ 
+// Balanço Mensal: Verde Principal ou Vermelho Auxiliar
+makeBars('bar-balanco','bar-balanco-ax',
+  meses.map((m,i) => { const v = receitas[i]-despesas[i]; return { name: m, labels:['Balanço'], values:[Math.round(v*2.5)], colors:[v>0?'#365833':'#A32E16'] }; }), 60);
+ 
+// Burn Rate: Vermelho Auxiliar
+const burnVals = [29,31,28,30,29,31];
+makeBars('bar-burn','bar-burn-ax',
+  meses.map((m,i) => ({ name: m, labels:['Burn Rate'], values:[Math.round(burnVals[i]*1.8)], colors:['#A32E16'] })), 65);
+ 
+// Orçado vs Realizado: Azul Auxiliar, Vermelho Auxiliar
+const catLabels = ['RH','Mktg','Infra','Coml','Outro'];
+const orcado = [10,5,5.5,4,6];
+const realiz = [9.8,6.2,5.1,4.4,5.5];
+makeBars('bar-orca','bar-orca-ax',
+  catLabels.map((l,i) => ({ name: l, labels:['Orçado','Realizado'], values:[Math.round(orcado[i]*5.5),Math.round(realiz[i]*5.5)], colors:['#427882','#A32E16'] })), 70);
+ 
+// Donut: Despesas (Vermelho Auxiliar), Economia (Azul Auxiliar)
+const donutCtx = document.getElementById('donut-renda');
+if (donutCtx) {
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [65,35], backgroundColor: ['#A32E16','#427882'], borderWidth: 0 }] },
+    options: { responsive: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+  });
+}
+</script>
+</body>
+</html>
